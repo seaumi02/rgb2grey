@@ -27,6 +27,7 @@ int main(int argc, char* argv[])
   unsigned int r = 0;
   unsigned int g = 0;
   unsigned int b = 0;
+  unsigned int rgbmax = 0;
   
   unsigned int tc = (unsigned int)time(NULL);
   //unsigned int cc = (unsigned int)clock_gettime( CLOCK_REALTIME, NULL);
@@ -65,31 +66,63 @@ int main(int argc, char* argv[])
         g = g&0xff; //  max 255
         b = b&0xff; //  max 255
 
+        //printf("tmpgray 01: %u : %u, %u, %u\n", tmpgray, r, g, b);
+
         tmpgray = (gray*1000) - (r*RV + g*GV + b*BV);
 
+        //printf("tmpgray 02: %u : %u, %u, %u\n", tmpgray, r, g, b);
+
+        if(r > g)
+        { rgbmax = r; }
+        else
+        { rgbmax = g; }
+
+        if(rgbmax > b)
+        {}
+        else
+        { rgbmax = b; }
+
+// increases equally 
+        tmp = tmpgray/1000;
+        if(rgbmax+tmp > 255)
+        { tmp = 255 - rgbmax; }
+        r += tmp;
+        g += tmp;
+        b += tmp;
+        tmpgray = tmpgray - (tmp*1000);
+
         tmp = tmpgray/GV;
-        if((tmp > 0) && (g+tmp<=255))
+
+/////// tmp +g > 255 -> g = 255d
+        if((tmp > 0))
         { 
+          if(g + tmp > 255)
+          { tmp = 255 - g;  }
+
           tmpgray -= tmp*GV;
           g += tmp;
         }
-
+        //printf("tmpgray 03: %u : %u, %u, %u\n", tmpgray, r, g, b);
         tmp = tmpgray/RV;
-        if((tmp > 0) && (r+tmp<=255))
+        if((tmp > 0))
         { 
+          if(r + tmp > 255)
+          { tmp = 255 - r;  }
           tmpgray -= tmp*RV;
           r += tmp;
         }
-
+        //printf("tmpgray 04: %u : %u, %u, %u\n", tmpgray, r, g, b);
         tmp = tmpgray/BV;
-        if((tmp > 0) && (b+tmp<=255))
+        if((tmp > 0))
         { 
+          if(b + tmp > 255)
+          { tmp = 255 - b;  }
           tmpgray -= tmp*BV;
           b += tmp;
         }
       }
-
-      printf("%d: r %4u, g %4u, b %4u, gray %4u\n", i, r,g,b, r*RV + g*GV + b*BV);
+        //printf("tmpgray 05: %u : %u, %u, %u\n", tmpgray, r, g, b);
+      printf("%d: r %4u, g %4u, b %4u, gray %4u : end\n", i, r,g,b, r*RV + g*GV + b*BV);
       ++i;
     }
   }
